@@ -6,20 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"go-jwt-auth/internal/app/auth/api"
 	"github.com/gorilla/mux"
 )
-
-func get(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message": "get called"}`))
-}
-
-func post(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message": "post called"}`))
-}
 
 func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -37,6 +26,10 @@ func params(w http.ResponseWriter, r *http.Request) {
 	userID := -1
 	var err error
 	if val, ok := pathParams["userID"]; ok {
+		if val == "" {
+			fmt.Println("nil userID")
+		}
+
 		userID, err = strconv.Atoi(val)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -58,7 +51,6 @@ func params(w http.ResponseWriter, r *http.Request) {
     query := r.URL.Query()
 	location := query.Get("location")
 
-	fmt.Println(val,ok)
 
 	fmt.Println(query, location)
 	
@@ -68,11 +60,11 @@ func params(w http.ResponseWriter, r *http.Request) {
 func main() {
 	r := mux.NewRouter()
 	api := r.PathPrefix("/api/v1").Subrouter()
-	api.HandleFunc("/", get).Methods(http.MethodGet)
-	api.HandleFunc("/", post).Methods(http.MethodPost)
 	api.HandleFunc("/", notFound)
-
 	api.HandleFunc("/user/{userID}/comment/{commentID}", params).Methods(http.MethodGet)
+
+	api2 := r.PathPrefix("/api").Subrouter()
+	api2.HandleFunc("/", handler.PostLogin).Methods(http.MethodPost)
 
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
