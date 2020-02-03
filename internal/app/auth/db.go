@@ -2,30 +2,38 @@ package auth
 
 import (
 	"log"
+
+	"go-jwt-auth/internal/app/auth/model"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
-type DBWrapper struct {
-	DB *gorm.DB
-}
+var db *gorm.DB
 
-var MyDB = &DBWrapper{}
-
-func InitDB() *DBWrapper {
-	db, err := gorm.Open("sqlite3", "auth.db")
+func InitDB() {
+	var err error
+	db, err = gorm.Open("sqlite3", "auth.db")
 	if err != nil {
 		log.Fatal("Could not connect database")
 	}
-
-	MyDB.DB = db
-	return MyDB
 }
 
-func GetDB() *DBWrapper {
-	return MyDB
-}
-
-func (db *DBWrapper) MigrateDB() *DBWrapper {
+func GetDB() *gorm.DB {
 	return db
+}
+
+func MigrateDB() {
+	db.AutoMigrate(&model.User{})
+}
+
+func SetInitialData() {
+	db.Create(&model.User{
+		Password:    "password",
+		IsSuperuser: true,
+		Username:    "admin",
+		Email:       "admin@admin.com",
+		IsStaff:     true,
+		IsActive:    true,
+	})
 }

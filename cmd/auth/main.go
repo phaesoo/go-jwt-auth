@@ -17,8 +17,10 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	db := auth.InitDB()
-	db.MigrateDB()
+	auth.InitDB()
+	auth.MigrateDB()
+
+	auth.SetInitialData()
 
 	app := &auth.App{}
 	app.Initialize()

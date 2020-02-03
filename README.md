@@ -6,6 +6,13 @@ JWT auth backend project with Golang
 ## Modules in use
 
 Router: "github.com/gorilla/mux"
+ORM: "github.com/jinzhu/gorm"
+
+
+## Test environment
+
+OS: Ubuntu 18.04
+DB: sqlite3
 
 
 ## References
