@@ -1,21 +1,25 @@
 package handler
 
 import (
-	"fmt"
+	//"io/ioutil"
+	"encoding/json"
 	"net/http"
 	//"github.com/gorilla/mux"
 )
 
+type Login struct {
+	Username string `json:"username`
+	Password string `json:"password"`
+}
 
 func PostLogin(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Body)
+	var login Login
+	err := json.NewDecoder(r.Body).Decode(&login)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 
-	decoder := json.Decoder(r.Body)
-	fmt.Println(decoder)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message": "get called"}`))
 }
 
 func GetMe(w http.ResponseWriter, r *http.Request) {
