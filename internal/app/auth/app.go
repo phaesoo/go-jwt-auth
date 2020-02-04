@@ -3,6 +3,9 @@ package auth
 import (
 	"log"
 	"net/http"
+
+	handler "go-jwt-auth/internal/app/auth/api"
+
 	"github.com/gorilla/mux"
 )
 
@@ -16,6 +19,8 @@ func (a *App) Initialize() {
 }
 
 func (a *App) setRouters() {
+	api := a.Router.PathPrefix("/api").Subrouter()
+	api.HandleFunc("/auth/login", handler.PostLogin).Methods(http.MethodPost)
 }
 
 func (a *App) Run(host string) {

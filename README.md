@@ -20,3 +20,5 @@ DB: sqlite3
 REST API
 - https://dev.to/moficodes/build-your-first-rest-api-with-go-2gcj
 - https://www.golangprograms.com/golang-restful-api-using-grom-and-gorilla-mux.html
+JWT
+- https://bourbonkk.tistory.com/60

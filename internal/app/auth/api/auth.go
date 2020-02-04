@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	//"io/ioutil"
 	"encoding/json"
 	"net/http"
+
 	//"github.com/gorilla/mux"
+	"go-jwt-auth/pkg/encrypt"
 )
 
 type Login struct {
@@ -19,6 +22,8 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
+
+	fmt.Println(encrypt.EncryptJWT("hspark"))
 
 }
 
