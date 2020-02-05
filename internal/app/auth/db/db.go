@@ -1,9 +1,10 @@
-package auth
+package db
 
 import (
 	"log"
-
+	"time"
 	"go-jwt-auth/internal/app/auth/model"
+	"go-jwt-auth/pkg/encrypt"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -13,7 +14,7 @@ var db *gorm.DB
 
 func InitDB() {
 	var err error
-	db, err = gorm.Open("sqlite3", "auth.db")
+	db, err = gorm.Open("sqlite3", "users.db")
 	if err != nil {
 		log.Fatal("Could not connect database")
 	}
@@ -29,11 +30,12 @@ func MigrateDB() {
 
 func SetInitialData() {
 	db.Create(&model.User{
-		Password:    "password",
+		Password:    encrypt.EncryptSHA256("password"),
 		IsSuperuser: true,
 		Username:    "admin",
 		Email:       "admin@admin.com",
 		IsStaff:     true,
 		IsActive:    true,
+		DateJoined:  time.Now(),
 	})
 }
