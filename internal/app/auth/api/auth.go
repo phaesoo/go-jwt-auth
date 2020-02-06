@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"time"
 	"log"
+	"time"
+
 	//"io/ioutil"
 	"encoding/json"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 
 	//"github.com/gorilla/mux"
 	"go-jwt-auth/internal/app/auth/model"
+	"go-jwt-auth/internal/app/common/utils"
 	"go-jwt-auth/pkg/encrypt"
 )
 
@@ -27,7 +29,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	login := Login{}
 	err := json.NewDecoder(r.Body).Decode(&login)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -38,45 +40,36 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	access_token, err := encrypt.EncryptJWT(user.Username)
+	accessToken, err := encrypt.EncryptJWT(user.Username)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	token := Token{}
-	token.AccessToken = access_token
+	token := Token{AccessToken: accessToken}
 
-	// Response
+	// response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(token)
 }
 
 type RespMe struct {
-	Id uint `json:"id"`
-	Username string `json:"username"`
-	Email string `json:"email"`
+	ID         uint      `json:"id"`
+	Username   string    `json:"username"`
+	Email      string    `json:"email"`
 	DateJoined time.Time `json:"date_joined"`
-	IssuedAt int64 `json:"issued_at"`
-	ExpiresAt int64 `json:"expires_at"`
+	IssuedAt   int64     `json:"issued_at"`
+	ExpiresAt  int64     `json:"expires_at"`
 }
 
 func GetMe(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("Authorization")
-	if token == "" {
-		http.Error(w, "Not Athorized", http.StatusUnauthorized)
-		return
-	}
-	log.Println(token)
-
-	claims, err := encrypt.DecryptJWT(token)
+	claims, err := utils.JWTAthentication(r)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Not Athorized", http.StatusUnauthorized)
 		return
 	}
-
 
 	dbHandler := db.GetDB()
 	user := model.User{}
@@ -86,19 +79,39 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := RespMe{
-		Id: user.ID,
-		Username: user.Username,
-		Email: user.Email,
+		ID:         user.ID,
+		Username:   user.Username,
+		Email:      user.Email,
 		DateJoined: user.DateJoined,
-		IssuedAt: claims.IssuedAt,
-		ExpiresAt: claims.ExpiresAt,
+		IssuedAt:   claims.IssuedAt,
+		ExpiresAt:  claims.ExpiresAt,
 	}
 
-	// Response
+	// response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
 
 func GetRefresh(w http.ResponseWriter, r *http.Request) {
+	claims, err := utils.JWTAthentication(r)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Not Athorized", http.StatusUnauthorized)
+		return
+	}
+
+	// give new access token
+	accessToken, err := encrypt.EncryptJWT(claims.Audience)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	token := Token{AccessToken: accessToken}
+
+	// response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(token)
 }
