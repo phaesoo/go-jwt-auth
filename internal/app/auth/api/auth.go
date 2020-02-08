@@ -4,13 +4,10 @@ import (
 	"log"
 	"time"
 
-	//"io/ioutil"
 	"encoding/json"
 	"net/http"
 
 	"go-jwt-auth/internal/app/auth/db"
-
-	//"github.com/gorilla/mux"
 	"go-jwt-auth/internal/app/auth/model"
 	"go-jwt-auth/internal/app/common/utils"
 	"go-jwt-auth/pkg/encrypt"
@@ -25,6 +22,7 @@ type Token struct {
 	AccessToken string `json:"access_token"`
 }
 
+// PostLogin : Login
 func PostLogin(w http.ResponseWriter, r *http.Request) {
 	login := Login{}
 	err := json.NewDecoder(r.Body).Decode(&login)
@@ -54,7 +52,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(token)
 }
 
-type RespMe struct {
+type Me struct {
 	ID         uint      `json:"id"`
 	Username   string    `json:"username"`
 	Email      string    `json:"email"`
@@ -63,6 +61,7 @@ type RespMe struct {
 	ExpiresAt  int64     `json:"expires_at"`
 }
 
+// GetMe : Get own information
 func GetMe(w http.ResponseWriter, r *http.Request) {
 	claims, err := utils.JWTAthentication(r)
 	if err != nil {
@@ -78,7 +77,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := RespMe{
+	response := Me{
 		ID:         user.ID,
 		Username:   user.Username,
 		Email:      user.Email,
@@ -93,6 +92,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// GetRefresh : Refresh JWT token
 func GetRefresh(w http.ResponseWriter, r *http.Request) {
 	claims, err := utils.JWTAthentication(r)
 	if err != nil {

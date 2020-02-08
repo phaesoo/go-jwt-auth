@@ -1,10 +1,11 @@
 package db
 
 import (
-	"log"
-	"time"
 	"go-jwt-auth/internal/app/auth/model"
 	"go-jwt-auth/pkg/encrypt"
+	"log"
+	"os"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -17,6 +18,23 @@ func InitDB() {
 	db, err = gorm.Open("sqlite3", "users.db")
 	if err != nil {
 		log.Fatal("Could not connect database")
+	}
+}
+
+// InitTestDB : Prepare for test DB
+func InitTestDB() {
+	var err error
+	db, err = gorm.Open("sqlite3", "/tmp/users.db")
+	if err != nil {
+		log.Fatal("Could not connect database")
+	}
+}
+
+// RemoveTestDB : Remove Test DB
+func RemoveTestDB() {
+	err := os.Remove("/tmp/users.db")
+	if err != nil {
+		log.Fatal("Failed to remove Test DB")
 	}
 }
 

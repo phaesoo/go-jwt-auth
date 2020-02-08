@@ -2,56 +2,68 @@
 
 
 [[projects]]
-  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
-  pruneopts = "UT"
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
 
 [[projects]]
-  digest = "1:cbec35fe4d5a4fba369a656a8cd65e244ea2c743007d8f6c1ccb132acf9d1296"
+  name = "github.com/gorilla/handlers"
+  packages = ["."]
+  revision = "8a3748addc242fc560bd6d4ff28b0374c010b1b4"
+  version = "v1.4.2"
+
+[[projects]]
   name = "github.com/gorilla/mux"
   packages = ["."]
-  pruneopts = "UT"
   revision = "00bdffe0f3c77e27d2cf6f5c70232a2d3e4d9c15"
   version = "v1.7.3"
 
 [[projects]]
-  digest = "1:3c215bf3587c8b5049a924b62745987a9584d07b7741e577e5728c0221901527"
   name = "github.com/jinzhu/gorm"
-  packages = [
-    ".",
-    "dialects/sqlite",
-  ]
-  pruneopts = "UT"
+  packages = [".","dialects/sqlite"]
   revision = "79a77d771dee4e4b60e9c543e8663bbc80466670"
   version = "v1.9.12"
 
 [[projects]]
-  digest = "1:01ed62f8f4f574d8aff1d88caee113700a2b44c42351943fa73cc1808f736a50"
   name = "github.com/jinzhu/inflection"
   packages = ["."]
-  pruneopts = "UT"
   revision = "f5c5f50e6090ae76a29240b61ae2a90dd810112e"
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:e2ac6e4ee843b2001b6c3a7801180ea3f7fa6d61fb917ca7dde15e26ef02a082"
   name = "github.com/mattn/go-sqlite3"
   packages = ["."]
-  pruneopts = "UT"
   revision = "9bdaffc12bf8be15afceb51bb60851edd4afdff5"
   version = "v2.0.3"
+
+[[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
+  version = "v1.4.0"
+
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "53403b58ad1b561927d19068c655246f2db79d48"
+  version = "v2.2.8"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = [
-    "github.com/dgrijalva/jwt-go",
-    "github.com/gorilla/mux",
-    "github.com/jinzhu/gorm",
-    "github.com/jinzhu/gorm/dialects/sqlite",
-  ]
+  inputs-digest = "af680714cda1ce4568cb03dbe20e631511bb76b99eb3ef99ce8393142f06406a"
   solver-name = "gps-cdcl"
   solver-version = 1
