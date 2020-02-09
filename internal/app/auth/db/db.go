@@ -56,4 +56,14 @@ func SetInitialData() {
 		IsActive:    true,
 		DateJoined:  time.Now(),
 	})
+
+	db.Create(&model.User{
+		Password:    encrypt.EncryptSHA256("password"),
+		IsSuperuser: false,
+		Username:    "test",
+		Email:       "test@test.com",
+		IsStaff:     false,
+		IsActive:    true,
+		DateJoined:  time.Now(),
+	})
 }

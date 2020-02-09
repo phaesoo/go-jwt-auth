@@ -22,6 +22,7 @@ func (a *App) setRouters() {
 	api := a.Router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/auth/login", handler.PostLogin).Methods(http.MethodPost)
 	api.HandleFunc("/auth/me", handler.GetMe).Methods(http.MethodGet)
+	api.HandleFunc("/users", handler.Get).Methods(http.MethodGet)
 }
 
 func (a *App) Run(host string) {

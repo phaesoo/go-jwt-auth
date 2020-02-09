@@ -1,7 +1,6 @@
 package api_test
 
 import (
-	"log"
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -18,20 +17,18 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	log.Println("Start")
-	InitTest()
-	exitVal := m.Run()
-	log.Println("End")
+	Setup()
+	defer Teardown()
 
+	exitVal := m.Run()
 	os.Exit(exitVal)
 }
 
-func InitTest() {
+func Setup() {
 	// prepare for test db
 	db.InitTestDB()
 	db.MigrateDB()
-	db.SetInitialData()
-	defer db.RemoveTestDB()
+	// db.SetInitialData()
 
 	// prepare for httptest server
 	logfile, err := os.OpenFile("/tmp/test.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
@@ -41,5 +38,9 @@ func InitTest() {
 	app := auth.App{}
 	app.Initialize()
 	server = httptest.NewServer(handlers.CombinedLoggingHandler(logfile, app.Router))
-	testUrl = server.URL
+	testUrl = server.URL + "/api"
+}
+
+func Teardown() {
+	db.RemoveTestDB()
 }
