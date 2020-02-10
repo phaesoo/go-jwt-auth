@@ -1,6 +1,21 @@
-# go-jwt-auth
+# Go JWT Auth
 
 JWT auth backend project with Golang
+
+
+## Debugging/Testing
+
+Run debugging server
+
+```console
+$ go run cmd/auth/main.go
+```
+
+Unit test
+
+```console
+$ go test ./... -v
+```
 
 
 ## Modules in use
