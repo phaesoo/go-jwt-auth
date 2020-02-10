@@ -63,10 +63,9 @@ type Me struct {
 
 // GetMe : Get own information
 func GetMe(w http.ResponseWriter, r *http.Request) {
-	claims, err := utils.JWTAthentication(r)
+	claims, err := utils.JWTAthentication(w, r)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "Not Athorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -94,10 +93,9 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 
 // GetRefresh : Refresh JWT token
 func GetRefresh(w http.ResponseWriter, r *http.Request) {
-	claims, err := utils.JWTAthentication(r)
+	claims, err := utils.JWTAthentication(w, r)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "Not Athorized", http.StatusUnauthorized)
 		return
 	}
 

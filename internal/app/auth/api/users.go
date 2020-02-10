@@ -2,19 +2,26 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"go-jwt-auth/internal/app/auth/db"
 	"go-jwt-auth/internal/app/auth/model"
+	"go-jwt-auth/internal/app/common/utils"
 )
 
+// Get : Get all user information
 func Get(w http.ResponseWriter, r *http.Request) {
+	if _, err := utils.JWTAthentication(w, r); err != nil {
+		log.Println(err)
+		return
+	}
+
+	// get all user info from db
 	dbHandler := db.GetDB()
-
 	users := []model.User{}
-
-	result := dbHandler.Select("id, username, email").Find(&users)
-	if result.RecordNotFound() {
+	dbHandler = dbHandler.Select("id, username, email").Find(&users)
+	if dbHandler.RecordNotFound() {
 		http.NotFound(w, r)
 		return
 	}
@@ -25,7 +32,13 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
+// Post : Add new user
 func Post(w http.ResponseWriter, r *http.Request) {
+	_, err := utils.JWTAthentication(w, r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {

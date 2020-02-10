@@ -38,12 +38,13 @@ func EncryptJWT(username string) (string, error) {
 func DecryptJWT(token string) (*Claims, error) {
 	claims := &Claims{}
 
+	// ParseWithClaims include expiration time checking
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 	if err != nil {
 		return claims, err
-	} else {
-		return claims, nil
 	}
+
+	return claims, nil
 }
