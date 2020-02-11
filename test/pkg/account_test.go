@@ -9,44 +9,65 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCheckUsername(t *testing.T) {
+func TestIsValidUsername(t *testing.T) {
+	var ok bool
 	var err error
-	err = account.CheckUsername("short")
-	assert.NotEqual(t, err, nil, err.Error())
+	ok, err = account.IsValidUsername("short")
+	assert.Equal(t, ok, false, err.Error())
 
-	err = account.CheckUsername("toooooooooooooooooooooolong")
-	assert.NotEqual(t, err, nil, err.Error())
+	ok, err = account.IsValidUsername("toooooooooooooooooooooolong")
+	assert.Equal(t, ok, false, err.Error())
 
-	err = account.CheckUsername("1startswithnum")
-	assert.NotEqual(t, err, nil, err.Error())
+	ok, err = account.IsValidUsername("1startswithnum")
+	assert.Equal(t, ok, false, err.Error())
 
-	err = account.CheckUsername("Uppercasename1")
-	assert.NotEqual(t, err, nil, err.Error())
+	ok, err = account.IsValidUsername("Uppercasename1")
+	assert.Equal(t, ok, false, err.Error())
 
-	err = account.CheckUsername("includespecial$^$1")
-	assert.NotEqual(t, err, nil, err.Error())
+	ok, err = account.IsValidUsername("includespecial$^$1")
+	assert.Equal(t, ok, false, err.Error())
 
 	// case of success
-	err = account.CheckUsername("shouldhavesucceeded1")
+	ok, err = account.IsValidUsername("shouldhavesucceeded1")
 	if err != nil {
 		log.Println(err.Error())
 	}
-	assert.Equal(t, err, nil)
+	assert.Equal(t, ok, true)
 }
 
-
-func TestCheckPassword(t *testing.T) {
+func TestIsValidPassword(t *testing.T) {
+	var ok bool
 	var err error
-	err = account.CheckPassword("lowercase")
-	assert.NotEqual(t, err, nil, err.Error())
+	ok, err = account.IsValidPassword("lowercase")
+	assert.Equal(t, ok, false, err.Error())
 
-	err = account.CheckPassword("UPPERCASE")
-	assert.NotEqual(t, err, nil, err.Error())
+	ok, err = account.IsValidPassword("UPPERCASE")
+	assert.Equal(t, ok, false, err.Error())
 
-	err = account.CheckPassword("Mixed123asd")
-	assert.NotEqual(t, err, nil, err.Error())
+	ok, err = account.IsValidPassword("Mixed123asd")
+	assert.Equal(t, ok, false, err.Error())
 
 	// case of success
-	err = account.CheckPassword("Password$3")
-	assert.Equal(t, err, nil)
+	ok, err = account.IsValidPassword("Password$3")
+	assert.Equal(t, ok, true)
+}
+
+func TestIsValidEmail(t *testing.T) {
+	var ok bool
+	var err error
+	ok, err = account.IsValidEmail("test")
+	assert.Equal(t, ok, false)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	ok, err = account.IsValidEmail("test@test")
+	assert.Equal(t, ok, false)
+
+	ok, err = account.IsValidEmail("@test.com")
+	assert.Equal(t, ok, false)
+
+	// case of success
+	ok, err = account.IsValidEmail("test@test.com")
+	assert.Equal(t, ok, true)
 }

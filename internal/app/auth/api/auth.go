@@ -27,7 +27,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	login := Login{}
 	err := json.NewDecoder(r.Body).Decode(&login)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 

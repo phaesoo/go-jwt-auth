@@ -2,43 +2,45 @@ package account
 
 import (
 	"fmt"
+	"regexp"
 	"unicode"
 )
 
-func CheckUsername(s string) error {
+// IsValidUsername : validate username
+func IsValidUsername(s string) (bool, error) {
 	// check length
 	length := len(s)
 	if length < 6 {
-		return fmt.Errorf("username length should be at least 6")
+		return false, fmt.Errorf("username length should be at least 6")
 	} else if length > 20 {
-		return fmt.Errorf("Username length should be not be greater than 20")
+		return false, fmt.Errorf("Username length should be not be greater than 20")
 	}
 
 	// check first letter
 	if unicode.IsOneOf([]*unicode.RangeTable{unicode.Number, unicode.Digit}, rune(s[0])) {
-		return fmt.Errorf("Username should not have to start with digits")
+		return false, fmt.Errorf("Username should not have to start with digits")
 	}
 
 	// check by loop
-	for name, classes := range map[string][]*unicode.RangeTable{
+	for _, classes := range map[string][]*unicode.RangeTable{
 		"valid types": {unicode.Lower, unicode.Number, unicode.Digit},
 	} {
 		for _, r := range s {
 			if !unicode.IsOneOf(classes, r) {
-				return fmt.Errorf("Username should have to be composed of lower case and digits", name)
+				return false, fmt.Errorf("Username should have to be composed of lower case and digits")
 			}
 		}
 	}
-	return nil
+	return true, nil
 }
 
-// copy from https://gist.github.com/fearblackcat/d0199d6a47d60b067a4d4be173b0ef97
-func CheckPassword(s string) error {
+// IsValidPassword : validate password
+func IsValidPassword(s string) (bool, error) {
 	// check length
 	if len(s) < 6 {
-		return fmt.Errorf("Password length should be at least 6")
+		return false, fmt.Errorf("Password length should be at least 6")
 	} else if len(s) > 20 {
-		return fmt.Errorf("Password length should be not be greater than 20")
+		return false, fmt.Errorf("Password length should be not be greater than 20")
 	}
 
 next:
@@ -53,7 +55,16 @@ next:
 				continue next
 			}
 		}
-		return fmt.Errorf("Password must have at least one %s character", name)
+		return false, fmt.Errorf("Password must have at least one %s character", name)
 	}
-	return nil
+	return true, nil
+}
+
+// IsValidEmail : validate email
+func IsValidEmail(s string) (bool, error) {
+	match, err := regexp.MatchString(`^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$`, s)
+	if err != nil {
+		return false, err
+	}
+	return match, nil
 }
