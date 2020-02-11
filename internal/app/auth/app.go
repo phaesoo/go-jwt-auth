@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	handler "go-jwt-auth/internal/app/auth/api"
+	handler "github.com/go-jwt-auth/internal/app/auth/api"
 
 	"github.com/gorilla/mux"
 )

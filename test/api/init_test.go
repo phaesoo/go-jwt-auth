@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"go-jwt-auth/internal/app/auth"
-	"go-jwt-auth/internal/app/auth/db"
+	"github.com/go-jwt-auth/internal/app/auth"
+	"github.com/go-jwt-auth/internal/app/auth/db"
 
 	"github.com/gorilla/handlers"
 )

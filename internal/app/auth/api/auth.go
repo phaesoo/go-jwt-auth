@@ -7,10 +7,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"go-jwt-auth/internal/app/auth/db"
-	"go-jwt-auth/internal/app/auth/model"
-	"go-jwt-auth/internal/app/common/utils"
-	"go-jwt-auth/pkg/encrypt"
+	"github.com/go-jwt-auth/internal/app/auth/db"
+	"github.com/go-jwt-auth/internal/app/auth/model"
+	"github.com/go-jwt-auth/internal/app/common/utils"
+	"github.com/go-jwt-auth/pkg/encrypt"
 )
 
 type Login struct {

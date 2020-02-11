@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"go-jwt-auth/pkg/encrypt"
+	"github.com/go-jwt-auth/pkg/encrypt"
 	"net/http"
 )
 

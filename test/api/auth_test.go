@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	handler "go-jwt-auth/internal/app/auth/api"
+	handler "github.com/go-jwt-auth/internal/app/auth/api"
 
 	"github.com/stretchr/testify/assert"
 )

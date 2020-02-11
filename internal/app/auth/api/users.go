@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"go-jwt-auth/internal/app/auth/db"
-	"go-jwt-auth/internal/app/auth/model"
-	"go-jwt-auth/internal/app/common/utils"
+	"github.com/go-jwt-auth/internal/app/auth/db"
+	"github.com/go-jwt-auth/internal/app/auth/model"
+	"github.com/go-jwt-auth/internal/app/common/utils"
 )
 
 // Get : Get all user information

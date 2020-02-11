@@ -3,7 +3,7 @@ package pkg_test
 import (
 	"testing"
 
-	"go-jwt-auth/pkg/account"
+	"github.com/go-jwt-auth/pkg/account"
 
 	"github.com/stretchr/testify/assert"
 )

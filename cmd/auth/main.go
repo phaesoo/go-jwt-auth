@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"go-jwt-auth/internal/app/auth"
-	"go-jwt-auth/internal/app/auth/db"
+	"github.com/go-jwt-auth/internal/app/auth"
+	"github.com/go-jwt-auth/internal/app/auth/db"
 )
 
 func notFound(w http.ResponseWriter, r *http.Request) {

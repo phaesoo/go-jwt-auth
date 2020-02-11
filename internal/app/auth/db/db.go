@@ -1,8 +1,8 @@
 package db
 
 import (
-	"go-jwt-auth/internal/app/auth/model"
-	"go-jwt-auth/pkg/encrypt"
+	"github.com/go-jwt-auth/internal/app/auth/model"
+	"github.com/go-jwt-auth/pkg/encrypt"
 	"log"
 	"os"
 	"time"
