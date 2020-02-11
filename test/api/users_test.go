@@ -1,11 +1,12 @@
 package api_test
 
 import (
+	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"testing"
 
+	handler "go-jwt-auth/internal/app/auth/api"
 	"go-jwt-auth/internal/app/auth/model"
 
 	"github.com/stretchr/testify/assert"
@@ -13,13 +14,38 @@ import (
 
 func TestGet(t *testing.T) {
 	var err error
-	resp, err := http.Get(testUrl + "/users")
+
+	// convert login struct to buffer
+	pbytes, _ := json.Marshal(handler.Login{Username: "admin", Password: "password"})
+	buff := bytes.NewBuffer(pbytes)
+
+	// request PostLogin with buffer to get access token
+	resp_login, err := http.Post(testUrl+"/auth/login", "application/json", buff)
+	assert.Equal(t, 200, resp_login.StatusCode, "Call PostLogin")
+	assert.Equal(t, err, nil, "Post Login returns error")
+
+	// decode access token
+	token := handler.Token{}
+	json.NewDecoder(resp_login.Body).Decode(&token)
+
+	// request GET with access token
+	req, err := http.NewRequest("GET", testUrl+"/users", nil)
+	if err != nil {
+		panic(err)
+	}
+	req.Header.Add("Authorization", token.AccessToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	// validate response
 	assert.Equal(t, resp.StatusCode, 200, "Error while http Get")
 	assert.Equal(t, err, nil, "Error while http Get")
 
 	users := []model.User{}
 	err = json.NewDecoder(resp.Body).Decode(&users)
 	assert.Equal(t, err, nil, "Error while decoding UserSummary")
-
-	log.Println("username", users[0].Username, users[1].Username)
 }

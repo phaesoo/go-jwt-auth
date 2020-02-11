@@ -17,7 +17,7 @@ func CheckUsername(username string) error {
 }
 
 // copy from https://gist.github.com/fearblackcat/d0199d6a47d60b067a4d4be173b0ef97
-func validPassword(s string) error {
+func CheckPassword(s string) error {
 next:
 	for name, classes := range map[string][]*unicode.RangeTable{
 		"upper case": {unicode.Upper, unicode.Title},

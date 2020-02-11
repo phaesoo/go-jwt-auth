@@ -28,7 +28,7 @@ func Setup() {
 	// prepare for test db
 	db.InitTestDB()
 	db.MigrateDB()
-	// db.SetInitialData()
+	db.SetInitialData()
 
 	// prepare for httptest server
 	logfile, err := os.OpenFile("/tmp/test.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
