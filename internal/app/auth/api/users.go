@@ -39,7 +39,6 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
