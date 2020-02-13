@@ -23,6 +23,9 @@ func (a *App) setRouters() {
 	api.HandleFunc("/auth/login", handler.PostLogin).Methods(http.MethodPost)
 	api.HandleFunc("/auth/me", handler.GetMe).Methods(http.MethodGet)
 	api.HandleFunc("/users", handler.Get).Methods(http.MethodGet)
+	api.HandleFunc("/users/{username}", handler.GetUser).Methods(http.MethodGet)
+	api.HandleFunc("/users/{username}", handler.PutUser).Methods(http.MethodPut)
+	api.HandleFunc("/users/{username}", handler.DeleteUser).Methods(http.MethodDelete)
 }
 
 func (a *App) Run(host string) {
