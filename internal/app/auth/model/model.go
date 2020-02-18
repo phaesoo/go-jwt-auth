@@ -17,3 +17,23 @@ type User struct {
 	IsActive    bool   `gorm:"not null"`
 	DateJoined  time.Time   `gorm:"not null"`
 }
+
+func (u *User) UpdateUser(dbHandler *gorm.DB) error {
+	tx := dbHandler.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := tx.Save(u).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}

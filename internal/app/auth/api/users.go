@@ -130,7 +130,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 type ParseUpdate struct {
 	Password    string `json"password"`
 	NewPassword string `json"new_password"`
-	Email       string `json"password"`
+	Email       string `json"email"`
 }
 
 func PutUser(w http.ResponseWriter, r *http.Request) {
@@ -139,11 +139,74 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// might have to add additional logic for user validation for update permission
+
 	vars := mux.Vars(r)
 	username := vars["username"]
 
-	dbHandler
+	parseUpdate := ParseUpdate{}
+	err := json.NewDecoder(r.Body).Decode(&parseUpdate)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// validate request body
+	var newPassword string
+	var email string
+
+	if parseUpdate.Password == "" {
+		http.Error(w, "Empty request body: password", http.StatusBadRequest)
+		return
+	}
+
+	if parseUpdate.NewPassword != "" {
+		if ok, err := account.IsValidPassword(parseUpdate.NewPassword); !ok {
+			if err != nil {
+				log.Println(err)
+			}
+			http.Error(w, "Invalid password format: new_password", http.StatusBadRequest)
+			return
+		}
+		newPassword = parseUpdate.NewPassword
+	}
+
+	if parseUpdate.Email != "" {
+		if ok, err := account.IsValidEmail(parseUpdate.Email); !ok {
+			if err != nil {
+				log.Println(err)
+			}
+			http.Error(w, "Invalid email format: email", http.StatusBadRequest)
+			return
+		}
+		email = parseUpdate.Email
+	}
+
+	if (newPassword == "") && (email == "" ) {
+		http.Error(w, "No data for updating", http.StatusBadRequest)
+		return
+	}
+
+	// check username and password from DB
+	user := model.User{}
+
+	dbHandler := db.GetDB()
+	if result := dbHandler.Where("username = ? AND password = ?", username, parseUpdate.Password).First(&user); result.RecordNotFound() {
+		http.Error(w, "Invalid username and password", http.StatusUnauthorized)
+		return
+	}
+
+	// update db with transaction
+	if err := user.UpdateUser(dbHandler); err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	if _, err := utils.JWTAthentication(w, r); err != nil {
+		log.Println(err.Error())
+		return
+	}
 }

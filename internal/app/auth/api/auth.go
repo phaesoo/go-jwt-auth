@@ -40,7 +40,8 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 
 	accessToken, err := encrypt.EncryptJWT(user.Username)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err.Error())
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -102,7 +103,8 @@ func GetRefresh(w http.ResponseWriter, r *http.Request) {
 	// give new access token
 	accessToken, err := encrypt.EncryptJWT(claims.Audience)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err.Error())
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
