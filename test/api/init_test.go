@@ -18,9 +18,8 @@ var (
 
 func TestMain(m *testing.M) {
 	Setup()
-	defer Teardown()
-
 	exitVal := m.Run()
+	Teardown()
 	os.Exit(exitVal)
 }
 
