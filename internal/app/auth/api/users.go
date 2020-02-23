@@ -216,9 +216,23 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// DeleteUser : delete user from db
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	if _, err := utils.JWTAthentication(w, r); err != nil {
 		log.Println(err.Error())
 		return
 	}
+
+	vars := mux.Vars(r)
+	username := vars["username"]
+
+	if err := model.DeleteUser(db.GetDB(), username); err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// response
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
