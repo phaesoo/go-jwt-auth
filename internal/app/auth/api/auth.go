@@ -27,6 +27,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	login := Login{}
 	err := json.NewDecoder(r.Body).Decode(&login)
 	if err != nil {
+		log.Println("Invalid request body")
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
@@ -34,6 +35,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	dbHandler := db.GetDB()
 	user := model.User{}
 	if result := dbHandler.Where("username = ? AND password = ?", login.Username, encrypt.EncryptSHA256(login.Password)).First(&user); result.RecordNotFound() {
+		log.Println("Record not found from db: username, password")
 		http.Error(w, "Not Athorized", http.StatusUnauthorized)
 		return
 	}

@@ -1,12 +1,12 @@
 package db
 
 import (
-	"github.com/go-jwt-auth/internal/app/auth/model"
-	"github.com/go-jwt-auth/pkg/encrypt"
 	"log"
 	"os"
 	"time"
 
+	"github.com/go-jwt-auth/internal/app/auth/model"
+	"github.com/go-jwt-auth/pkg/encrypt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )

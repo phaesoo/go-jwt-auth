@@ -10,6 +10,7 @@ import (
 	"github.com/go-jwt-auth/internal/app/auth/model"
 	"github.com/go-jwt-auth/internal/app/common/utils"
 	"github.com/go-jwt-auth/pkg/account"
+	"github.com/go-jwt-auth/pkg/encrypt"
 	"github.com/gorilla/mux"
 )
 
@@ -133,6 +134,7 @@ type ParseUpdate struct {
 	Email       string `json"email"`
 }
 
+// PutUser : update user info
 func PutUser(w http.ResponseWriter, r *http.Request) {
 	if _, err := utils.JWTAthentication(w, r); err != nil {
 		log.Println(err.Error())
@@ -140,7 +142,6 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// might have to add additional logic for user validation for update permission
-
 	vars := mux.Vars(r)
 	username := vars["username"]
 
@@ -156,6 +157,7 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	var email string
 
 	if parseUpdate.Password == "" {
+		log.Println("Empty request body: password")
 		http.Error(w, "Empty request body: password", http.StatusBadRequest)
 		return
 	}
@@ -165,6 +167,7 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println(err)
 			}
+			log.Println("Invalid password format: new_password")
 			http.Error(w, "Invalid password format: new_password", http.StatusBadRequest)
 			return
 		}
@@ -176,13 +179,15 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println(err)
 			}
+			log.Println("Invalid email format: email")
 			http.Error(w, "Invalid email format: email", http.StatusBadRequest)
 			return
 		}
 		email = parseUpdate.Email
 	}
 
-	if (newPassword == "") && (email == "" ) {
+	if (newPassword == "") && (email == "") {
+		log.Println("Empty new password and email")
 		http.Error(w, "No data for updating", http.StatusBadRequest)
 		return
 	}
@@ -191,17 +196,24 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	user := model.User{}
 
 	dbHandler := db.GetDB()
-	if result := dbHandler.Where("username = ? AND password = ?", username, parseUpdate.Password).First(&user); result.RecordNotFound() {
+	if result := dbHandler.Where("username = ? AND password = ?", username, encrypt.EncryptSHA256(parseUpdate.Password)).First(&user); result.RecordNotFound() {
+		log.Println("Invalid username and password")
 		http.Error(w, "Invalid username and password", http.StatusUnauthorized)
 		return
 	}
 
+	// update password wth new password
 	// update db with transaction
+	user.Password = encrypt.EncryptSHA256(newPassword)
 	if err := user.UpdateUser(dbHandler); err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+
+	// response
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {

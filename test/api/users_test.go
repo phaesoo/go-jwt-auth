@@ -51,12 +51,20 @@ func TestGet(t *testing.T) {
 }
 
 func TestPut(t *testing.T) {
+	// login information
+	username := "admin"
+	password := "password"
+
+	targetUsername := "test"
+	targetPassword := "password"
+	targetNewPassword := "NewPassword!2"
+
 	var err error
 	var buff *bytes.Buffer
 
 	// convert login struct to buffer
-	if pbytes, err := json.Marshal(handler.Login{Username: "admin", Password: "password"}); err != nil {
-
+	if pbytes, err := json.Marshal(handler.Login{Username: username, Password: password}); err != nil {
+		t.Error(err.Error())
 	} else {
 		buff = bytes.NewBuffer(pbytes)
 	}
@@ -71,19 +79,34 @@ func TestPut(t *testing.T) {
 	json.NewDecoder(resp_login.Body).Decode(&token)
 
 	// request PUT with access token
-	pbytes, _ := json.Marshal(handler.ParseUpdate{Password: "password", NewPassword: "NewPassword!2"})
-	buff = bytes.NewBuffer(pbytes)
+	if pbytes, err := json.Marshal(handler.ParseUpdate{Password: targetPassword, NewPassword: targetNewPassword}); err != nil {
+		t.Error(err.Error())
+	} else {
+		buff = bytes.NewBuffer(pbytes)
+	}
 
-	// request PostLogin with buffer to get access token
-	req, err := http.NewRequest("PUT", testUrl+"/users/admin", buff)
+	req, err := http.NewRequest("PUT", testUrl+"/users/"+targetUsername, buff)
 	if err != nil {
-		panic(err)
+		t.Error(err.Error())
 	}
 	req.Header.Add("Authorization", token.AccessToken)
 
 	client := &http.Client{}
-	_, err = client.Do(req)
-	if err != nil {
-		panic(err)
+	if resp, err := client.Do(req); err != nil {
+		t.Error(err.Error())
+	} else {
+		assert.Equal(t, 200, resp.StatusCode, "PutUser")
+	}
+
+	// try login with new password
+	if pbytes, err := json.Marshal(handler.Login{Username: targetUsername, Password: targetNewPassword}); err != nil {
+		t.Error(err.Error())
+	} else {
+		buff = bytes.NewBuffer(pbytes)
+	}
+	if resp_login, err := http.Post(testUrl+"/auth/login", "application/json", buff); err != nil {
+		t.Error(err.Error())
+	} else {
+		assert.Equal(t, 200, resp_login.StatusCode, "Call PostLogin")
 	}
 }
