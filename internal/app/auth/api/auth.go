@@ -24,30 +24,34 @@ type Token struct {
 
 // PostLogin : Login
 func PostLogin(w http.ResponseWriter, r *http.Request) {
+	// parse login from request body
 	login := Login{}
-	err := json.NewDecoder(r.Body).Decode(&login)
-	if err != nil {
-		log.Println("Invalid request body")
+	if err := json.NewDecoder(r.Body).Decode(&login); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
+	// select user from db
 	dbHandler := db.GetDB()
 	user := model.User{}
-	if result := dbHandler.Where("username = ? AND password = ?", login.Username, encrypt.EncryptSHA256(login.Password)).First(&user); result.RecordNotFound() {
+	if result := dbHandler.Where(
+		"username = ? AND password = ?", login.Username, encrypt.EncryptSHA256(login.Password)
+		).First(&user); result.RecordNotFound() {
 		log.Println("Record not found from db: username, password")
 		http.Error(w, "Not Athorized", http.StatusUnauthorized)
 		return
 	}
 
-	accessToken, err := encrypt.EncryptJWT(user.Username)
-	if err != nil {
+	// generate token
+	var token Token
+	if accessToken, err := encrypt.EncryptJWT(user.Username); err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
+	} else {
+		token = Token{AccessToken: accessToken}
 	}
-
-	token := Token{AccessToken: accessToken}
 
 	// response
 	w.Header().Set("Content-Type", "application/json")
@@ -55,7 +59,7 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(token)
 }
 
-type Me struct {
+type RespMe struct {
 	ID         uint      `json:"id"`
 	Username   string    `json:"username"`
 	Email      string    `json:"email"`
@@ -66,12 +70,14 @@ type Me struct {
 
 // GetMe : Get own information
 func GetMe(w http.ResponseWriter, r *http.Request) {
+	// jwt authentication
 	claims, err := utils.JWTAthentication(w, r)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
+	// select user from db
 	dbHandler := db.GetDB()
 	user := model.User{}
 	if result := dbHandler.Where("username = ?", claims.Audience).First(&user); result.RecordNotFound() {
@@ -79,7 +85,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := Me{
+	response := RespMe{
 		ID:         user.ID,
 		Username:   user.Username,
 		Email:      user.Email,
@@ -96,21 +102,22 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 
 // GetRefresh : Refresh JWT token
 func GetRefresh(w http.ResponseWriter, r *http.Request) {
+	// jwt authentication
 	claims, err := utils.JWTAthentication(w, r)
 	if err != nil {
-		log.Println(err)
+		log.Println(err.Error())
 		return
 	}
 
-	// give new access token
-	accessToken, err := encrypt.EncryptJWT(claims.Audience)
-	if err != nil {
+	// generate new access token
+	var token Token
+	if accessToken, err := encrypt.EncryptJWT(claims.Audience); err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
+	} else {
+		token = Token{AccessToken: accessToken}
 	}
-
-	token := Token{AccessToken: accessToken}
 
 	// response
 	w.Header().Set("Content-Type", "application/json")
