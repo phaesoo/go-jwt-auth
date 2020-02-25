@@ -17,15 +17,15 @@ import (
 // Get : Get all user information
 func Get(w http.ResponseWriter, r *http.Request) {
 	if _, err := utils.JWTAthentication(w, r); err != nil {
-		log.Println(err)
+		log.Println(err.Error())
 		return
 	}
 
 	// get all user info from db
 	dbHandler := db.GetDB()
 	users := []model.User{}
-	dbHandler = dbHandler.Select("id, username, email").Find(&users)
-	if dbHandler.RecordNotFound() {
+	if result := dbHandler.Select("id, username, email").Find(&users); result.RecordNotFound() {
+		log.Println("Record not found")
 		http.NotFound(w, r)
 		return
 	}
@@ -44,15 +44,14 @@ type postUser struct {
 
 // Post : Add new user
 func Post(w http.ResponseWriter, r *http.Request) {
-	_, err := utils.JWTAthentication(w, r)
-	if err != nil {
-		log.Println(err)
+	if _, err := utils.JWTAthentication(w, r); err != nil {
+		log.Println(err.Error())
 		return
 	}
 
 	user := postUser{}
-	err = json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
@@ -60,7 +59,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	// validate request body
 	if ok, err := account.IsValidUsername(user.Username); !ok {
 		if err != nil {
-			log.Println(err)
+			log.Println(err.Error())
 		}
 		http.Error(w, "Invalid username", http.StatusBadRequest)
 		return
@@ -68,7 +67,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 
 	if ok, err := account.IsValidPassword(user.Password); !ok {
 		if err != nil {
-			log.Println(err)
+			log.Println(err.Error())
 		}
 		http.Error(w, "Invalid password", http.StatusBadRequest)
 		return
@@ -76,14 +75,13 @@ func Post(w http.ResponseWriter, r *http.Request) {
 
 	if ok, err := account.IsValidEmail(user.Email); !ok {
 		if err != nil {
-			log.Println(err)
+			log.Println(err.Error())
 		}
 		http.Error(w, "Invalid email", http.StatusBadRequest)
 		return
 	}
 
 	// update db
-	dbHandler := db.GetDB()
 	newUser := model.User{
 		Username:    user.Username,
 		Password:    user.Password,
@@ -94,6 +92,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		DateJoined:  time.Now(),
 	}
 
+	dbHandler := db.GetDB()
 	if err := dbHandler.Create(&newUser).Error; err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Already existed username: "+user.Username, http.StatusBadRequest)
@@ -101,6 +100,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// response
+	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -115,9 +115,9 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	username := vars["username"]
 
 	dbHandler := db.GetDB()
-
 	user := model.User{}
 	if result := dbHandler.Select("id, username, email").Where("username = ?", username).First(&user); result.RecordNotFound() {
+		log.Println("Not found username: "+username)
 		http.Error(w, "Not found username: "+username, http.StatusBadRequest)
 		return
 	}
@@ -128,7 +128,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-type ParseUpdate struct {
+type parseUpdate struct {
 	Password    string `json"password"`
 	NewPassword string `json"new_password"`
 	Email       string `json"email"`
@@ -145,8 +145,8 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"]
 
-	parseUpdate := ParseUpdate{}
-	err := json.NewDecoder(r.Body).Decode(&parseUpdate)
+	parsed := parseUpdate{}
+	err := json.NewDecoder(r.Body).Decode(&parsed)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
@@ -156,34 +156,34 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	var newPassword string
 	var email string
 
-	if parseUpdate.Password == "" {
+	if parsed.Password == "" {
 		log.Println("Empty request body: password")
 		http.Error(w, "Empty request body: password", http.StatusBadRequest)
 		return
 	}
 
-	if parseUpdate.NewPassword != "" {
-		if ok, err := account.IsValidPassword(parseUpdate.NewPassword); !ok {
+	if parsed.NewPassword != "" {
+		if ok, err := account.IsValidPassword(parsed.NewPassword); !ok {
 			if err != nil {
-				log.Println(err)
+				log.Println(err.Error())
 			}
 			log.Println("Invalid password format: new_password")
 			http.Error(w, "Invalid password format: new_password", http.StatusBadRequest)
 			return
 		}
-		newPassword = parseUpdate.NewPassword
+		newPassword = parsed.NewPassword
 	}
 
-	if parseUpdate.Email != "" {
-		if ok, err := account.IsValidEmail(parseUpdate.Email); !ok {
+	if parsed.Email != "" {
+		if ok, err := account.IsValidEmail(parsed.Email); !ok {
 			if err != nil {
-				log.Println(err)
+				log.Println(err.Error())
 			}
 			log.Println("Invalid email format: email")
 			http.Error(w, "Invalid email format: email", http.StatusBadRequest)
 			return
 		}
-		email = parseUpdate.Email
+		email = parsed.Email
 	}
 
 	if (newPassword == "") && (email == "") {

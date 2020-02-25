@@ -73,7 +73,7 @@ func GetMe(w http.ResponseWriter, r *http.Request) {
 	// jwt authentication
 	claims, err := utils.JWTAthentication(w, r)
 	if err != nil {
-		log.Println(err)
+		log.Println(err.Error())
 		return
 	}
 
